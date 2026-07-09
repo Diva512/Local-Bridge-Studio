@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.*
+npm-debug.log*
+*.log
+
+data/
+projects/
+uploads/
+.upload-tmp/
+runtime/
+logs/
+temp/
+tmp/
+
+.DS_Store
+.vscode/

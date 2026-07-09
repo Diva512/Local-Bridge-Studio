@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalBridge Studio</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">LB</div>
+        <div>
+          <h1>LocalBridge Studio</h1>
+          <p>LAN hosting + public tunnel URLs</p>
+        </div>
+      </div>
+      <div class="top-pills">
+        <span class="pill">LAN <b id="lanIp">Detecting...</b></span>
+        <span class="pill">RUNTIMES <b id="runtimeCount">0</b></span>
+        <span class="pill">TUNNELS <b id="tunnelCount">0</b></span>
+      </div>
+      <div class="top-actions">
+        <button class="btn ghost" id="refreshBtn">Refresh</button>
+        <button class="btn ghost" id="startAllBtn">Start All</button>
+        <button class="btn danger-soft" id="stopAllBtn">Stop All</button>
+        <button class="btn primary" id="addProjectBtn">+ Add Project</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <section class="side-card">
+          <h3>CONTROL</h3>
+          <div class="info-row"><span>Status</span><b class="good">Connected</b></div>
+          <div class="info-row"><span>Host</span><b id="hostName">-</b></div>
+          <div class="info-row"><span>Node</span><b id="nodeVersion">-</b></div>
+          <div class="info-row"><span>Tool Bind</span><b>127.0.0.1:3000</b></div>
+        </section>
+
+        <section class="side-card">
+          <h3>PROVIDERS</h3>
+          <div class="info-row"><span>LocalTunnel</span><b id="providerLocaltunnel" class="good">Ready</b></div>
+          <div class="info-row"><span>Ngrok</span><b id="providerNgrok">Checking</b></div>
+          <div class="info-row"><span>Cloudflared</span><b id="providerCloudflared">Checking</b></div>
+        </section>
+
+        <section class="side-card">
+          <h3>NETWORK</h3>
+          <div class="info-row"><span>Best IP</span><b id="bestIp">-</b></div>
+          <div id="adapterList" class="adapter-list"></div>
+        </section>
+
+        <section class="side-card note-card">
+          <h3>MODES</h3>
+          <p><b>LAN URL</b> same Wi-Fi devices ke liye.</p>
+          <p><b>Public URL</b> different network/state/country ke liye.</p>
+        </section>
+      </aside>
+
+      <section class="content">
+        <section class="hero-bar">
+          <div>
+            <h2>Local &amp; Public Project Hosting</h2>
+            <p>Manage local projects on LAN and public tunnel URLs from one dashboard.</p>
+          </div>
+          <div class="flow-chips">
+            <span>Project</span>
+            <i>→</i>
+            <span>LAN URL</span>
+            <i>→</i>
+            <span class="green">Public URL</span>
+          </div>
+        </section>
+
+        <section class="section-head">
+          <div>
+            <h2>Project Runtime Nodes</h2>
+            <p><span id="projectCount">0</span> registered projects</p>
+          </div>
+          <div class="filters">
+            <input id="searchInput" placeholder="Search projects" />
+            <select id="typeFilter">
+              <option value="all">All</option>
+              <option value="static">Static</option>
+              <option value="frontend">Frontend</option>
+              <option value="api">API</option>
+              <option value="fullstack">Full Stack</option>
+            </select>
+            <button class="btn outline" id="compactBtn">Compact</button>
+          </div>
+        </section>
+
+        <section id="projectGrid" class="project-grid"></section>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="projectModal">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="modalTitle">Add Project</h2>
+          <p>Project Root Path se auto detect karo. Advanced fields optional hain.</p>
+        </div>
+        <button class="icon-btn" id="closeModalBtn">×</button>
+      </div>
+
+      <form id="projectForm" class="form-grid">
+        <input type="hidden" id="projectId" />
+        <label>
+          Project name
+          <input id="projectName" placeholder="KRONOS-CORE" required />
+        </label>
+        <label>
+          Project Root Path
+          <input id="rootPath" placeholder="D:\\PROJECTS\\My-Project" required />
+        </label>
+        <label>
+          Project type
+          <select id="projectType">
+            <option value="auto">Auto Detect</option>
+            <option value="static">Static</option>
+            <option value="frontend">Frontend only</option>
+            <option value="api">Backend/API only</option>
+            <option value="fullstack">Full Stack</option>
+            <option value="fullstack-root">Full Stack Root Mode</option>
+          </select>
+        </label>
+        <label>
+          Tunnel provider
+          <select id="provider">
+            <option value="localtunnel">LocalTunnel · no login</option>
+            <option value="ngrok">Ngrok · installed + auth</option>
+            <option value="cloudflared">Cloudflared · installed</option>
+          </select>
+        </label>
+        <label>
+          Project port
+          <input id="staticPort" placeholder="4100 for static, 5000 for API" />
+        </label>
+
+        <div class="form-actions wide">
+          <button type="button" class="btn primary" id="detectBtn">🔍 Auto Detect Project</button>
+          <button type="button" class="btn ghost" id="advancedToggle">Show Advanced Settings</button>
+        </div>
+
+        <div class="advanced wide hidden" id="advancedBox">
+          <label>
+            Frontend port
+            <input id="frontendPort" placeholder="5173" />
+          </label>
+          <label>
+            Backend / API port
+            <input id="backendPort" placeholder="5000" />
+          </label>
+          <label>
+            Proxy port
+            <input id="proxyPort" placeholder="9101" />
+          </label>
+          <label>
+            Frontend folder
+            <input id="frontendFolder" placeholder="frontend / client / web" />
+          </label>
+          <label>
+            Backend folder
+            <input id="backendFolder" placeholder="backend / server / api" />
+          </label>
+          <label>
+            Root command
+            <input id="rootCommand" placeholder="npm run dev" />
+          </label>
+          <label>
+            Frontend command
+            <input id="frontendCommand" placeholder="npm run dev" />
+          </label>
+          <label>
+            Backend command
+            <input id="backendCommand" placeholder="npm run dev" />
+          </label>
+          <label>
+            API route prefix
+            <input id="apiPrefix" placeholder="/api" />
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="stripApiPrefix" />
+            Strip /api prefix when forwarding
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="autoInstall" />
+            Auto install dependencies if missing
+          </label>
+        </div>
+
+        <div id="detectResult" class="detect-result wide hidden"></div>
+
+        <div class="form-footer wide">
+          <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn primary">Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <aside class="logs-drawer hidden" id="logsDrawer">
+    <div class="logs-head">
+      <div>
+        <h2 id="logsTitle">Project Logs</h2>
+        <p>Runtime, proxy aur tunnel output</p>
+      </div>
+      <div class="logs-actions">
+        <button class="btn ghost" id="clearLogsBtn">Clear Logs</button>
+        <button class="icon-btn" id="closeLogsBtn">×</button>
+      </div>
+    </div>
+    <pre id="logsOutput">Waiting...</pre>
+  </aside>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

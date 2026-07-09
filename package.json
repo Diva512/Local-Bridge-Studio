@@ -1,0 +1,27 @@
+{
+  "name": "localbridge-studio",
+  "version": "1.0.0",
+  "description": "Host multiple local projects on LAN and public tunnel URLs from one clean dashboard.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "localhost",
+    "lan",
+    "tunnel",
+    "localtunnel",
+    "ngrok",
+    "cloudflared",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "http-proxy": "^1.18.1"
+  }
+}
