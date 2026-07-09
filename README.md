@@ -40,3 +40,5 @@ http://localhost:3000
 ## Important
 
 Share only your own authorized local projects.
+<img width="1917" height="966" alt="image" src="https://github.com/user-attachments/assets/c5053eab-c7a6-4ea3-bd85-2c06de133040" />
+
